@@ -29,7 +29,8 @@ function cloudH(){ return {apikey:CLOUD.key, Authorization:'Bearer '+CLOUD.key, 
 function cloudStatus(m){ const e=document.getElementById('cloudStatus'); if(e)e.textContent=m; }
 function pick(k,rows){
   const c=CLOUD.cols[k];
-  return rows.map(r=>{ const o={}; c.forEach(f=>{ if(r[f]!==undefined)o[f]=r[f]; }); return o; });
+  // PostgREST toplu yazmada tum satirlar ayni alanlara sahip olmali: eksik -> null
+  return rows.map(r=>{ const o={}; c.forEach(f=>{ o[f]=(r[f]===undefined?null:r[f]); }); return o; });
 }
 async function cloudPush(silent, force){
   if(cloudBusy||!navigator.onLine)return;
