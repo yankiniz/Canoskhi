@@ -40,6 +40,8 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   b.classList.add('active'); document.getElementById('tab-'+b.dataset.tab).classList.add('active');
 });
 document.getElementById('todayLine').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+(function greet(){ const h=new Date().getHours(); const m=h<6?'İyi geceler':(h<12?'Günaydın':(h<18?'İyi günler':'İyi akşamlar')); const e=document.getElementById('greetLine'); if(e)e.textContent=m; })();
+function cloudDot(){ const e=document.getElementById('cloudDot'); if(e)e.classList.toggle('on',navigator.onLine); }
 document.getElementById('calMonth').value=new Date().toISOString().slice(0,7);
 
 // --- HIZLI İŞLEM ---
@@ -187,7 +189,7 @@ function delCust(id){if(!confirm('Müşteri tamamen silinsin mi?'))return;DB.del
 
 // --- GÜNÜM / FİNANS / NOT / TAKVİM ---
 function monthKey(){return new Date().toISOString().slice(0,7)}
-function renderAll(){ensureExpiryReminders();renderGunum();renderCustomers();renderFinance();renderNotes();renderCalendar();renderChart();renderSahsi();if(typeof schedulePush==='function')schedulePush()}
+function renderAll(){ensureExpiryReminders();renderGunum();renderCustomers();renderFinance();renderNotes();renderCalendar();renderChart();renderSahsi();cloudDot();if(typeof schedulePush==='function')schedulePush()}
 // Otomatik vade bildirimi: 30 gun icinde bitecek aktif + oto acik urun icin hatirlatma yoksa kur.
 // Bitirdigin (✓) hatirlatma bir daha canlanmaz; mukerrer kayit uretmez.
 function ensureExpiryReminders(){
