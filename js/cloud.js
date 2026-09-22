@@ -23,31 +23,43 @@ const CLOUD = {
     pgoal:['id','ay','hedef']
   }
 };
-let cloudBusy=false, pushTimer=null;
+let cloudBusy=false, pushTimer=null, cloudReady=false;
+function localCount(){ return Object.keys(CLOUD.tables).reduce((s,k)=>s+DB.get(k).length,0); }
 function cloudH(){ return {apikey:CLOUD.key, Authorization:'Bearer '+CLOUD.key, 'Content-Type':'application/json'}; }
 function cloudStatus(m){ const e=document.getElementById('cloudStatus'); if(e)e.textContent=m; }
 function pick(k,rows){
   const c=CLOUD.cols[k];
   return rows.map(r=>{ const o={}; c.forEach(f=>{ if(r[f]!==undefined)o[f]=r[f]; }); return o; });
 }
-async function cloudPush(silent){
+async function cloudPush(silent, force){
   if(cloudBusy||!navigator.onLine)return;
+  if(!cloudReady&&!force)return; // ilk esitleme bitmeden asla gonderme
+  if(localCount()===0){
+    if(!silent){ if(confirm('Bu cihazda veri yok. Buluttaki veriyi SILMEK istediğine emin misin?'))cloudPushReal(); else cloudStatus('☁️ İptal: cihaz boş'); }
+    return;
+  }
+  cloudPushReal(silent);
+}
+async function cloudPushReal(silent){
   cloudBusy=true; if(!silent)cloudStatus('☁️ Gönderiliyor...');
+  // Yazma sirasi: once ebeveynler (FK baglantisi yuzunden)
+  const sira=['customers','products','cprod','incomes','expenses','reminders','notes','mails','docs','goals','subs','sdays','stasks','pgoal'];
   try{
-    for(const k in CLOUD.tables){
-      const t=CLOUD.tables[k], rows=pick(k,DB.get(k));
-      if(rows.length)await fetch(`${CLOUD.url}/rest/v1/${t}?onConflict=id`,{method:'POST',headers:{...cloudH(),Prefer:'resolution=merge-duplicates'},body:JSON.stringify(rows)});
-      const ancien=await (await fetch(`${CLOUD.url}/rest/v1/${t}?select=id`,{headers:cloudH()})).json();
-      const localIds=new Set(DB.get(k).map(r=>r.id));
-      const sil=(ancien||[]).map(r=>r.id).filter(id=>!localIds.has(id));
-      if(sil.length)await fetch(`${CLOUD.url}/rest/v1/${t}?id=in.(${sil.join(',')})`,{method:'DELETE',headers:cloudH()});
+    for(const k of [...sira].reverse()){
+      const del=await fetch(`${CLOUD.url}/rest/v1/${CLOUD.tables[k]}?id=not.is.null`,{method:'DELETE',headers:cloudH()});
+      if(!del.ok)throw new Error('sil '+k);
+    }
+    for(const k of sira){
+      const rows=pick(k,DB.get(k));
+      if(!rows.length)continue;
+      const ins=await fetch(`${CLOUD.url}/rest/v1/${CLOUD.tables[k]}`,{method:'POST',headers:cloudH(),body:JSON.stringify(rows)});
+      if(!ins.ok)throw new Error('yaz '+k);
     }
     cloudStatus('☁️ Eşit '+new Date().toLocaleTimeString('tr-TR'));
-  }catch(e){ cloudStatus('☁️ Hata: interneti kontrol et'); }
+  }catch(e){ cloudStatus('☁️ Hata ('+e.message+'): tekrar dene'); }
   cloudBusy=false;
 }
-async function cloudPull(){
-  if(cloudBusy||!navigator.onLine)return alert('İnternet yok');
+async function cloudPull(){  if(cloudBusy||!navigator.onLine)return alert('İnternet yok');
   if(!confirm('Buluttaki veri bu cihaza yazılacak. Devam?'))return;
   cloudBusy=true; cloudStatus('☁️ Alınıyor...');
   try{
@@ -59,15 +71,15 @@ async function cloudPull(){
     cloudStatus('☁️ Alındı '+new Date().toLocaleTimeString('tr-TR'));
     renderAll();
   }catch(e){ cloudStatus('☁️ Hata: interneti kontrol et'); }
-  cloudBusy=false;
+  cloudBusy=false; cloudReady=true;
 }
 function schedulePush(){ clearTimeout(pushTimer); pushTimer=setTimeout(()=>cloudPush(true),5000); }
 // Cihaz bomboşsa ve bulutta veri varsa otomatik çek
 (async function cloudInit(){
   try{
-    if(!navigator.onLine)return;
+    if(!navigator.onLine){ cloudReady=true; return; }
     const dolu=Object.keys(CLOUD.tables).some(k=>DB.get(k).length);
-    if(dolu){ cloudStatus('☁️ Hazır'); return; }
+    if(dolu){ cloudStatus('☁️ Hazır'); cloudReady=true; return; }
     const r=await fetch(`${CLOUD.url}/rest/v1/customers?select=id&limit=1`,{headers:cloudH()});
     const rows=await r.json();
     if(Array.isArray(rows)&&rows.length){
@@ -81,4 +93,5 @@ function schedulePush(){ clearTimeout(pushTimer); pushTimer=setTimeout(()=>cloud
       renderAll();
     } else cloudStatus('☁️ Hazır (bulut boş)');
   }catch(e){ cloudStatus('☁️ Çevrimdışı mod'); }
+  cloudReady=true;
 })();
