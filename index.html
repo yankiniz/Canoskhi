@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#F1F2F4">
 <title>Canoskhi — Saha Operasyon Asistanı</title>
 <link rel="icon" href="assets/mascot.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -31,6 +34,7 @@
     </div>
     <h2>🎯 Bugünün Öncelikleri</h2>
     <ol id="agendaList" class="agenda"></ol>
+    <div class="card dark risk"><h3>📡 Radar</h3><p id="riskLine">—</p></div>
     <div class="cards">
       <div class="card dark"><h3>Bu Ay Gelir</h3><p id="sumIncome">0 ₺</p></div>
       <div class="card"><h3>Bu Ay Gider</h3><p id="sumExpense">0 ₺</p></div>
@@ -65,7 +69,7 @@
       <button onclick="setCustFilter('all')">Tümü</button>
       <button onclick="printCustomers()">🖨️ Liste PDF</button>
     </div>
-    <input id="search" placeholder="Ara: isim, telefon, ürün..." oninput="renderCustomers()">
+    <input id="search" placeholder="⌕ Ara: isim, telefon, ürün..." oninput="renderCustomers()">
     <div id="customerList"></div>
   </section>
 

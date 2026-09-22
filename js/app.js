@@ -4,7 +4,7 @@ const todayStr=()=>new Date().toISOString().slice(0,10);
 // --- ONCELIK: sadece 3 seviye, skor yok
 // acil 🔴 / onemli 🟡 / normal ⚪  (yoksa normal sayilir)
 function prioRank(o){ return o==='acil'?0:(o==='onemli'?1:2); }
-function prioBadge(o){ return o==='acil'?'🔴 Acil':(o==='onemli'?'🟡 Önemli':'⚪'); }
+function prioBadge(o){ return o==='acil'?'<span class="pb pb-acil">Acil</span>':(o==='onemli'?'<span class="pb pb-onemli">Önemli</span>':'<span class="pb pb-normal">Normal</span>'); }
 // --- SEGMENT: farkli urun sayisina gore (yenileme sayilmaz: ayni urun 4 yil da olsa 1 sayilir)
 function tierOf(cid){
   const adlar=[...new Set(DB.get('cprod').filter(p=>p.customer_id===cid&&p.durum==='aktif').map(p=>(p.product||'').toLocaleLowerCase('tr')))];
@@ -207,6 +207,13 @@ function ensureExpiryReminders(){
 }
 function renderGunum(){
   renderAgenda();
+  // Radar: geciken + 14 gun vade + 14 gun dogum gunu ozeti
+  const n=new Date(); n.setHours(0,0,0,0);
+  const gec=DB.get('reminders').filter(r=>!r.tamamlandi&&r.tarih&&new Date(r.tarih)<n).length
+    + DB.get('stasks').filter(t=>!t.tamamlandi&&t.tarih&&new Date(t.tarih)<n).length;
+  const vad=DB.get('cprod').filter(p=>p.bitis_tarihi&&p.durum==='aktif'&&p.oto_yenile!==0&&(()=>{const g=vadeGun(p.bitis_tarihi);return g!==null&&g>=0&&g<=14})()).length;
+  const rl=document.getElementById('riskLine');
+  if(rl)rl.textContent=gec+vad===0?'Her şey yolunda 🎉':`${gec?gec+' geciken ⛔ ':''}${vad?vad+' vade ⏰':''}`.trim();
   const mk=monthKey();
   const inc=DB.get('incomes').filter(i=>(i.tarih||'').startsWith(mk)).reduce((s,i)=>s+Number(i.tutar),0);
   const exp=DB.get('expenses').filter(i=>(i.tarih||'').startsWith(mk)).reduce((s,i)=>s+Number(i.tutar),0);
@@ -225,7 +232,7 @@ function renderGunum(){
   }).filter(x=>x.g!==null&&x.g<=60).sort((a,b)=>a.g-b.g);
   document.getElementById('expiryList').innerHTML=exps.length?exps.map(x=>`<li>⏰ <a href="#" onclick="openDetail(${x.p.customer_id});return false">${x.c?x.c.ad_soyad:'?'}</a> — ${x.p.product} <span class="badge">${vadeKalan(x.p.bitis_tarihi)}</span> <small>${x.p.bitis_tarihi}</small> <button onclick="remindExpiry(${x.p.id})">Hatırlat</button> <button onclick="waVade(${x.p.id})">💬</button></li>`).join(''):'<li>Vadesi yaklaşan poliçe yok</li>';
   const rems=DB.get('reminders').filter(r=>!r.tamamlandi).sort((a,b)=>prioRank(a.oncelik)-prioRank(b.oncelik)||((a.tarih||'')<(b.tarih||'')?-1:1)).slice(0,20);
-  document.getElementById('reminderList').innerHTML=rems.length?rems.map(r=>`<li>${r.tip==='ozel'?'🏠':'📌'} ${r.baslik} <span class="badge">${prioBadge(r.oncelik)}</span> <span class="badge">${r.tarih||''}</span> <button onclick="doneRem(${r.id})">✓</button></li>`).join(''):'<li>Hatırlatma yok</li>';
+  document.getElementById('reminderList').innerHTML=rems.length?rems.map(r=>`<li>${r.tip==='ozel'?'🏠':'📌'} ${r.baslik} ${prioBadge(r.oncelik)} <span class="badge">${r.tarih||''}</span> <button onclick="doneRem(${r.id})">✓</button></li>`).join(''):'<li>Hatırlatma yok</li>';
 }
 // --- BIRLESIK GUNDEM: skorsuz, 4 grup (geciken / acil / onemli / normal), her grup kendi icinde tarih sirali
 function renderAgenda(){
@@ -267,7 +274,7 @@ function renderAgenda(){
   ['geciken','acil','onemli','normal'].forEach(k=>{
     if(!G[k].length)return;
     html+=`<li class="head">${baslik[k]} (${G[k].length})</li>`;
-    G[k].slice(0,8).forEach(x=>{ html+=`<li>${x.ikon} ${x.metin} ${x.seviye?`<span class="badge">${x.seviye}</span>`:''} <span class="badge">${x.alt||''}</span> <button onclick="${x.act}">${x.actAd}</button></li>`; });
+    G[k].slice(0,8).forEach(x=>{ html+=`<li>${x.ikon} ${x.metin} ${x.seviye||''} <span class="badge">${x.alt||''}</span> <button onclick="${x.act}">${x.actAd}</button></li>`; });
   });
   document.getElementById('agendaList').innerHTML=html||'<li>Bugün öncelikli iş yok — keyfine bak ☕</li>';
 }
@@ -473,7 +480,7 @@ function renderSahsi(){
   }).join('')||'<li>Özel gün yok</li>';
   // Gorevler
   const ts=DB.get('stasks').filter(t=>!t.tamamlandi).concat(DB.get('stasks').filter(t=>t.tamamlandi));
-  document.getElementById('staskList').innerHTML=ts.map(t=>`<li>${t.tamamlandi?'✅':'⬜'} <b>${t.baslik}</b> <span class="badge">${t.oncelik}</span> <small>${t.tarih||''}</small> ${t.tamamlandi?'':`<button onclick="taskToggle(${t.id})">✓</button>`} <button onclick="DB.del('stasks',${t.id});renderAll()">Sil</button></li>`).join('')||'<li>Görev yok</li>';
+  document.getElementById('staskList').innerHTML=ts.map(t=>`<li>${t.tamamlandi?'✅':'⬜'} <b>${t.baslik}</b> ${prioBadge(t.oncelik)} <small>${t.tarih||''}</small> ${t.tamamlandi?'':`<button onclick="taskToggle(${t.id})">✓</button>`} <button onclick="DB.del('stasks',${t.id});renderAll()">Sil</button></li>`).join('')||'<li>Görev yok</li>';
   // Gunum ozetleri
   const sd=DB.get('sdays').map(s=>({s,nx:sdayNext(s)})).filter(x=>x.nx&&x.nx.gun>=0&&x.nx.gun<=30).sort((a,b)=>a.nx.gun-b.nx.gun);
   document.getElementById('sdayList').innerHTML=sd.map(x=>`<li>💍 ${x.s.ad} <span class="badge">${x.nx.gun} gün</span> <small>${x.nx.tarih}</small> <button onclick="dayDone(${x.s.id})">🎉</button></li>`).join('')||'<li>Yaklaşan özel gün yok</li>';
