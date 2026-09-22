@@ -1,38 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Cano maskotu">
-  <!-- golge -->
-  <ellipse cx="100" cy="176" rx="52" ry="10" fill="#141414" opacity="0.08"/>
-  <!-- kollar -->
-  <path d="M48 118 Q30 126 28 142" stroke="#141414" stroke-width="13" stroke-linecap="round" fill="none"/>
-  <path d="M152 118 Q170 126 172 142" stroke="#141414" stroke-width="13" stroke-linecap="round" fill="none"/>
-  <ellipse cx="28" cy="144" rx="9" ry="8" fill="#C8F04B"/>
-  <ellipse cx="172" cy="144" rx="9" ry="8" fill="#C8F04B"/>
-  <!-- govde -->
-  <rect x="48" y="96" width="104" height="76" rx="38" fill="#161616"/>
-  <rect x="48" y="96" width="104" height="76" rx="38" fill="url(#cam)" opacity="0.55"/>
-  <!-- yuz -->
-  <circle cx="100" cy="82" r="46" fill="#FFF6E9"/>
-  <!-- sac buklesi -->
-  <path d="M100 38 Q100 22 116 22 Q128 22 126 32 Q124 40 114 38" stroke="#141414" stroke-width="7" stroke-linecap="round" fill="none"/>
-  <!-- gozler -->
-  <circle cx="82" cy="80" r="6.5" fill="#141414"/>
-  <circle cx="118" cy="80" r="6.5" fill="#141414"/>
-  <circle cx="84.2" cy="77.8" r="2.2" fill="#fff"/>
-  <circle cx="120.2" cy="77.8" r="2.2" fill="#fff"/>
-  <!-- yanaklar -->
-  <ellipse cx="68" cy="94" rx="8" ry="5.5" fill="#FFB3A7" opacity="0.75"/>
-  <ellipse cx="132" cy="94" rx="8" ry="5.5" fill="#FFB3A7" opacity="0.75"/>
-  <!-- gulus -->
-  <path d="M88 96 Q100 106 112 96" stroke="#141414" stroke-width="5" stroke-linecap="round" fill="none"/>
-  <!-- govde rozeti: C harfi -->
-  <circle cx="100" cy="134" r="17" fill="#C8F04B"/>
-  <text x="100" y="141.5" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="800" font-size="21" fill="#141414">C</text>
-  <!-- isilti -->
-  <path d="M158 40 l3.2 7.4 7.4 3.2 -7.4 3.2 -3.2 7.4 -3.2 -7.4 -7.4 -3.2 7.4 -3.2 Z" fill="#C8F04B"/>
   <defs>
-    <linearGradient id="cam" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#fff" stop-opacity="0.5"/>
-      <stop offset="0.5" stop-color="#fff" stop-opacity="0.05"/>
-      <stop offset="1" stop-color="#fff" stop-opacity="0.25"/>
+    <linearGradient id="vzor" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FF3B30"/>
+      <stop offset="0.2" stop-color="#FF9500"/>
+      <stop offset="0.38" stop-color="#FFD60A"/>
+      <stop offset="0.55" stop-color="#34C759"/>
+      <stop offset="0.7" stop-color="#32ADE6"/>
+      <stop offset="0.85" stop-color="#BF5AF2"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="govde" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E2E35"/>
+      <stop offset="1" stop-color="#0E0E12"/>
     </linearGradient>
   </defs>
+  <!-- golge -->
+  <ellipse cx="100" cy="180" rx="50" ry="9" fill="#141414" opacity="0.10"/>
+  <!-- hayalet govde -->
+  <path d="M55 174 V96 C55 62 74 42 100 42 C126 42 145 62 145 96 V174
+           C145 174 139 164 131 164 C123 164 121 174 113 174
+           C105 174 103 164 95 164 C87 164 85 174 77 174
+           C69 174 67 164 59 164 C57 164 55 168 55 174 Z" fill="url(#govde)"/>
+  <!-- parlama -->
+  <ellipse cx="76" cy="72" rx="12" ry="20" fill="#fff" opacity="0.10" transform="rotate(-18 76 72)"/>
+  <!-- vizor gozluk -->
+  <path d="M46 92 Q46 76 62 76 L138 76 Q154 76 154 92 Q154 108 138 108
+           L120 108 Q110 108 108 99 Q106 108 96 108 L62 108 Q46 108 46 92 Z" fill="url(#vzor)"/>
+  <ellipse cx="132" cy="86" rx="16" ry="7" fill="#fff" opacity="0.55"/>
+  <!-- gulus -->
+  <path d="M86 130 Q100 140 114 130" stroke="#3A3A42" stroke-width="5" stroke-linecap="round" fill="none"/>
 </svg>
