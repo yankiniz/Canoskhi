@@ -4,8 +4,9 @@
   --card:rgba(255,255,255,.78); --card-solid:#FFFFFF;
   --lime:#C8F04B; --lime-deep:#9BC53D; --dark:#161616;
   --radius:24px; --radius-s:16px;
-  --shadow:0 8px 28px rgba(20,25,40,.10);
-  --glass-blur:saturate(1.6) blur(22px);
+  --shadow:0 12px 32px rgba(20,25,40,.10), inset 0 1px 0 rgba(255,255,255,.6);
+  --glass-blur:saturate(1.8) blur(28px);
+  --spring:cubic-bezier(.32,1.3,.44,1);
   --font-d:"Baloo 2","Segoe UI Rounded",system-ui,sans-serif;
   --font-brand:"Titan One","Baloo 2",system-ui,sans-serif;
   --yellow:#FFD60A; --red:#FF3B30;
@@ -41,15 +42,18 @@ header.glass{position:sticky;top:10px;z-index:50;margin:10px 12px 0;padding:10px
 .head-dot.on{background:#34C759;box-shadow:0 0 8px #34C759}
 
 main{padding:12px 12px 0}
-.tab{display:none}.tab.active{display:block;animation:rise .22s ease}
-@keyframes rise{from{opacity:0;transform:translateY(8px) scale(.995)}to{opacity:1}}
+.tab{display:none}.tab.active{display:block;animation:rise .3s var(--spring)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+li,.card,.quick button{transition:transform .18s ease,box-shadow .3s ease}
+li:active,.card:active,.quick button:active{transform:scale(.98)}
 
 /* hero */
-.hero{display:flex;align-items:center;gap:12px;border-radius:26px;padding:14px 16px;margin:2px 0 4px;
-  background:linear-gradient(135deg,#161616 0%,#2A2E35 70%,#3A3F1A 100%);color:#fff;border:0;}
+.hero{display:flex;align-items:center;gap:12px;border-radius:28px;padding:16px;margin:2px 0 4px;
+  background:linear-gradient(135deg,#232329 0%,#33363E 55%,#4A5223 100%);color:#fff;border:1px solid rgba(200,240,75,.25);
+  box-shadow:0 14px 34px rgba(20,25,40,.18), inset 0 1px 0 rgba(255,255,255,.22);}
 .hero h2{margin:0;font-size:30px;font-weight:400;letter-spacing:.5px;font-family:var(--font-brand);color:var(--yellow);text-shadow:0 3px 0 rgba(0,0,0,.35)}
 .hero p{margin:2px 0 0;font-size:13px;color:#C9CDD4}
-.mascot-hero{width:76px;height:76px;flex:0 0 auto;filter:drop-shadow(0 6px 12px rgba(0,0,0,.35));animation:bob 3.2s ease-in-out infinite}
+.mascot-hero{width:76px;height:76px;flex:0 0 auto;filter:drop-shadow(0 0 16px rgba(200,240,75,.65)) drop-shadow(0 6px 10px rgba(0,0,0,.4));animation:bob 3.2s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-6px) rotate(2deg)}}
 
 h2{font-size:17px;margin:20px 4px 8px;font-weight:800;letter-spacing:0;font-family:var(--font-d)}
@@ -94,10 +98,14 @@ li button:active{transform:scale(.95)}
   border-radius:30px;box-shadow:0 12px 34px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12)}
 .tabbar button{flex:1 1 0;border:0;background:transparent;color:#9BA0A8;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:7px;
-  min-width:0;min-height:52px;border-radius:999px;padding:0 6px;transition:all .25s ease}
+  min-width:0;min-height:52px;border-radius:999px;padding:0 6px;
+  transition:flex .5s var(--spring),background-color .3s ease,color .3s ease,box-shadow .3s ease,transform .15s ease}
+.tabbar button:active{transform:scale(.92)}
+.tabbar button svg{transition:transform .45s var(--spring)}
 .tabbar button svg{width:23px;height:23px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tabbar button span{display:none;font-size:12px;font-weight:800;white-space:nowrap;color:#141414;font-family:var(--font-d)}
-.tabbar button.active{flex:2.4 1 0;background:var(--lime);color:#141414;box-shadow:0 4px 14px rgba(200,240,75,.4)}
+.tabbar button.active{flex:2.4 1 0;background:var(--lime);color:#141414;box-shadow:0 6px 18px rgba(200,240,75,.5), inset 0 1px 0 rgba(255,255,255,.6)}
+.tabbar button.active svg{transform:scale(1.12) rotate(-4deg)}
 .tabbar button.active span{display:block}
 .tabbar button.active svg{stroke:#141414}
 
